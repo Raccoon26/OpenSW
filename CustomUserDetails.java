@@ -60,4 +60,13 @@ public class CustomUserDetails implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
- 
+         /* 유저의 권한 목록 */
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        Collection<GrantedAuthority> collectors = new ArrayList<>();
+
+        collectors.add(() -> "ROLE_"+user.getRole());
+
+        return collectors;
+    }
+}

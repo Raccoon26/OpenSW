@@ -41,4 +41,43 @@ public class PostsService {
 
         return new PostsDto.Response(posts);
     }
-    
+     /* UPDATE (dirty checking 영속성 컨텍스트)
+     *  User 객체를 영속화시키고, 영속화된 User 객체를 가져와 데이터를 변경하면
+     * 트랜잭션이 끝날 때 자동으로 DB에 저장해준다. */
+    @Transactional
+    public void update(Long id, PostsDto.Request dto) {
+        Posts posts = postsRepository.findById(id).orElseThrow(() ->
+                new IllegalArgumentException("해당 게시글이 존재하지 않습니다. id=" + id));
+
+        posts.update(dto.getTitle(), dto.getContent());
+    }
+
+    /* DELETE */
+    @Transactional
+    public void delete(Long id) {
+        Posts posts = postsRepository.findById(id).orElseThrow(() ->
+                new IllegalArgumentException("해당 게시글이 존재하지 않습니다. id=" + id));
+
+        postsRepository.delete(posts);
+    }
+
+    /* Views Counting */
+    @Transactional
+    public int updateView(Long id) {
+        return postsRepository.updateView(id);
+    }
+
+
+    /* Paging and Sort */
+    @Transactional(readOnly = true)
+    public Page<Posts> pageList(Pageable pageable) {
+        return postsRepository.findAll(pageable);
+    }
+
+    /* search */
+    @Transactional(readOnly = true)
+    public Page<Posts> search(String keyword, Pageable pageable) {
+        Page<Posts> postsList = postsRepository.findByTitleContaining(keyword, pageable);
+        return postsList;
+    }
+}
